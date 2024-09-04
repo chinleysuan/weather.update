@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="header" ;>
+      <h1>Weather Update - Iligan City</h1>
+      <div id="weather">
+        <p>Loading weather data...</p>
+      </div>
+      <footer>Chinley A. Suan</footer>
+      <script>
+        document.addEventListener("DOMContentLoaded", async function () {
+          const apiKey = "035784b7d45a40cfae961025242108";
+          const cityName = "Iligan";
+          const apiEndpoint = `https://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${cityName}&days=7`;
+
+          try {
+            const response = await fetch(apiEndpoint);
+            const weatherData = await response.json();
+            console.log(weatherData);
+
+            const weatherContainer = document.getElementById("weather");
+            const currentData = weatherData.current;
+            const forecastDays = weatherData.forecast.forecastday;
+
+            weatherContainer.innerHTML = `
+            <h2>${cityName}</h2>
+            <p><strong>Temperature:</strong> ${currentData.temp_c}°C</p>
+            <p><strong>Weather:</strong> ${currentData.condition.text}</p>
+            <p><strong>Humidity:</strong> ${currentData.humidity}%</p>
+          `;
+
+            forecastDays.forEach((day) => {
+              const date = new Date(day.date).toLocaleDateString("en-US", {
+                weekday: "long",
+              });
+              const temperatureInCelsius = day.day.avgtemp_c;
+              const weatherDescription = day.day.condition.text;
+              const iconUrl = day.day.condition.icon;
+
+              const dayDiv = document.createElement("div");
+              dayDiv.className = "day";
+              dayDiv.innerHTML = `
+              <h3>${date}</h3>
+              <img src="https:${iconUrl}" alt="${weatherDescription}" />
+              <p><strong>Temp:</strong> ${temperatureInCelsius}°C</p>
+              <p><strong>Weather:</strong> ${weatherDescription}</p>
+            `;
+              weatherContainer.appendChild(dayDiv);
+            });
+          } catch (error) {
+            const weatherContainer = document.getElementById("weather");
+            weatherContainer.innerHTML = `<p>Unable to retrieve weather data: ${error.message}</p>`;
+          }
+        });
+      </script>
+    </div>
+  </body>
+</html>
+
